@@ -28,3 +28,5 @@ cron:
 ```
 
 From now on, AWS will do POST /worker/schedule to your endpoint every minute - kind of the same effect we achieved when editing a UNIX cron file. The important difference here is that worker environment still has to run a web process in order to run scheduled tasks.
+
+## Queued jobs: SQS
