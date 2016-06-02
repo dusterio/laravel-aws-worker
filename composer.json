@@ -1,0 +1,31 @@
+{
+    "name": "dusterio/laravel-aws-worker",
+    "type": "library",
+    "description": "Run Laravel (or Lumen) tasks and queue listeners inside of AWS Elastic Beanstalk workers",
+    "keywords": ["php","laravel","lumen","sqs","aws","elasticbeanstalk","worker"],
+    "homepage": "https://github.com/dusterio/laravel-aws-worker",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Denis Mysenko",
+            "email": "denis@mysenko.com",
+            "homepage": "https://www.mysenko.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.5.0",
+        "illuminate/support": "5.*",
+	    "illuminate/queue": "5.*",
+	    "illuminate/bus": "5.*",
+	    "aws/aws-sdk-php": "~3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*",
+        "codeclimate/php-test-reporter": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Dusterio\\AwsWorker\\": "src/"
+        }
+    }
+}
