@@ -35,5 +35,69 @@ cron:
 ```
 
 From now on, AWS will do POST /worker/schedule to your endpoint every minute - kind of the same effect we achieved when editing a UNIX cron file. The important difference here is that worker environment still has to run a web process in order to run scheduled tasks.
+To protect web process from unauthorized calls, 'production' environment won't have special routes. Once again, your worker application **shouldn't have environment set to production** (use 'worker' or anything else).
+
+Your scheduled tasks should be defined in ```App\Console\Kernel::class``` - just where they normally are in Laravel, eg.:
+
+```php
+protected function schedule(Schedule $schedule)
+{
+    $schedule->command('inspire')
+              ->everyMinute();
+}
+```
 
 ## Queued jobs: SQS
+
+## Dependencies
+
+* PHP >= 5.5
+* Laravel (or Lumen) >= 5.2
+
+## Installation via Composer
+
+To install simply run:
+
+```
+composer require dusterio/laravel-aws-worker
+```
+
+Or add it to `composer.json` manually:
+
+```json
+{
+    "require": {
+        "dusterio/laravel-aws-worker": "~0.1"
+    }
+}
+```
+
+### Usage in Laravel 5
+
+```php
+// Add in your config/app.php
+
+'providers' => [
+    '...',
+    'Dusterio\AwsWorker\Integrations\LaravelServiceProvider',
+];
+```
+
+After adding service provider, you should be able to see two special routes that we added:
+
+```bash
+$ php artisan route:list
++--------+----------+-----------------+------+----------------------------------------------------------+------------+
+| Domain | Method   | URI             | Name | Action                                                   | Middleware |
++--------+----------+-----------------+------+----------------------------------------------------------+------------+
+|        | POST     | worker/queue    |      | Dusterio\AwsWorker\Controllers\WorkerController@queue    |            |
+|        | POST     | worker/schedule |      | Dusterio\AwsWorker\Controllers\WorkerController@schedule |            |
++--------+----------+-----------------+------+----------------------------------------------------------+------------+
+```
+
+### Usage in Lumen 5
+
+```php
+// Add in your bootstrap/app.php
+$app->register(Dusterio\AwsWorker\Integrations\LumenServiceProvider::class);
+```

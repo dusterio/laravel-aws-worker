@@ -2,57 +2,58 @@
 
 namespace Dusterio\AwsWorker\Controllers;
 
-class WorkerController
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\App;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Console\Scheduling\Schedule;
+
+class WorkerController extends LaravelController
 {
     /**
-     * The middleware defined on the controller.
-     *
-     * @var array
-     */
-    protected $middleware = [];
-
-    /**
-     * Define a middleware on the controller.
-     *
-     * @param  string  $middleware
-     * @param  array  $options
-     * @return void
-     */
-    public function middleware($middleware, array $options = [])
-    {
-        $this->middleware[$middleware] = $options;
-    }
-
-    /**
-     * Get the middleware for a given method.
-     *
-     * @param  string  $method
+     * @param Request $request
      * @return array
      */
-    public function getMiddlewareForMethod($method)
+    public function schedule(Request $request)
     {
-        $middleware = [];
+        $laravel = App::getInstance();
 
-        foreach ($this->middleware as $name => $options) {
-            if (isset($options['only']) && ! in_array($method, (array) $options['only'])) {
+        // Istantiating the Console kernel causes schedule() method to load all console tasks
+        App::make(Kernel::class);
+
+        // The fresh instance of schedule now contains console tasks
+        $schedule = App::make(Schedule::class);
+
+        $events = $schedule->dueEvents($laravel);
+        $eventsRan = 0;
+        $messages = [];
+
+        foreach ($events as $event) {
+            if (! $event->filtersPass($laravel)) {
                 continue;
             }
 
-            if (isset($options['except']) && in_array($method, (array) $options['except'])) {
-                continue;
-            }
+            $messages[] = 'Running: '.$event->getSummaryForDisplay();
 
-            $middleware[] = $name;
+            $event->run($laravel);
+
+            ++$eventsRan;
         }
 
-        return $middleware;
+        if (count($events) === 0 || $eventsRan === 0) {
+            $messages[] = 'No scheduled commands are ready to run.';
+        }
+
+        return [
+            'code' => 200,
+            'message' => $messages
+        ];
     }
 
     /**
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      * @return array
      */
-    public function schedule(\Illuminate\Http\Request $request)
+    public function queue(Request $request)
     {
         return [
             'code' => 200,
