@@ -14,6 +14,8 @@ Laravel documentation recommends to use supervisor for queue workers and *IX cro
 
 This package helps you run your Laravel (or Lumen) jobs in AWS worker environments.
 
+![Standard Laravel queue flow](https://www.mysenko.com/images/queues-laravel.png)
+
 ## Scheduled tasks
 
 You remember how Laravel documentation advised you to invoke the task scheduler? Right, by running ```php artisan schedule:run``` on regular basis, and to do that we had to add an entry to our cron file:
