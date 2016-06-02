@@ -15,6 +15,7 @@ Laravel documentation recommends to use supervisor for queue workers and *IX cro
 This package helps you run your Laravel (or Lumen) jobs in AWS worker environments.
 
 ![Standard Laravel queue flow](https://www.mysenko.com/images/queues-laravel.png)
+![AWS Elastic Beanstalk flow](https://www.mysenko.com/images/queues-aws_eb.png)
 
 ## Scheduled tasks
 
