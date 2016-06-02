@@ -2,10 +2,15 @@
 
 namespace Dusterio\AwsWorker\Controllers;
 
+use Dusterio\AwsWorker\Jobs\AwsJob;
 use Illuminate\Http\Request;
+use Illuminate\Queue\Jobs\SqsJob;
+use Illuminate\Queue\Worker;
 use Illuminate\Support\Facades\App;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Console\Scheduling\Schedule;
+use Aws\Sqs\SqsClient;
+use Illuminate\Support\Arr;
 
 class WorkerController extends LaravelController
 {
@@ -51,10 +56,28 @@ class WorkerController extends LaravelController
 
     /**
      * @param Request $request
+     * @param Worker $worker
      * @return array
      */
-    public function queue(Request $request)
+    public function queue(Request $request, Worker $worker)
     {
+        $connectionName = 'sqs';
+        $laravel = App::getInstance();
+        $config = array_merge([
+            'version' => 'latest',
+            'http' => [
+                'timeout' => 60,
+                'connect_timeout' => 60
+            ]
+        ], $laravel['config']["queue.connections.sqs"]);
+
+        $client = new SqsClient($config, $config['queue'], Arr::get($config, 'prefix', ''));
+        $job = new AwsJob($laravel, $client, $connectionName, ['Body' => '', 'ReceiptHandle' => 'ASASAS']);
+
+        $worker->process(
+            $connectionName, $job, 0, 0
+        );
+
         return [
             'code' => 200,
             'message' => 'Yo'

@@ -52,6 +52,8 @@ protected function schedule(Schedule $schedule)
 
 ## Queued jobs: SQS
 
+Normally Laravel has to poll SQS for new messages, but in case of AWS Elastic Beanstalk messages will come to us – inside of POST requests from AWS daemon. Therefore, we need a custom connection driver that 
+
 ## Dependencies
 
 * PHP >= 5.5
