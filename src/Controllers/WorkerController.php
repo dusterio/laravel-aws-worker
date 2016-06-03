@@ -117,22 +117,20 @@ class WorkerController extends LaravelController
         $job = json_decode($request->getContent(), true);
         if ($job === null) throw new MalformedRequestException('Unable to decode request JSON');
 
+        if (isset($job['job']) && isset($job['data'])) return $request->getContent();
+
         // If the format is not the standard Laravel format, try to mimic it
-        if (! isset($job['job'])) {
-            $queueId = explode('/', $request->header('X-Aws-Sqsd-Queue'));
-            $queueId = array_pop($queueId);
+        $queueId = explode('/', $request->header('X-Aws-Sqsd-Queue'));
+        $queueId = array_pop($queueId);
 
-            $class = (array_key_exists($queueId, $laravel['config']->get('sqs-plain.handlers')))
-                ? $laravel['config']->get('sqs-plain.handlers')[$queueId]
-                : $laravel['config']->get('sqs-plain.default-handler');
+        $class = (array_key_exists($queueId, $laravel['config']->get('sqs-plain.handlers')))
+            ? $laravel['config']->get('sqs-plain.handlers')[$queueId]
+            : $laravel['config']->get('sqs-plain.default-handler');
 
-            return json_encode([
-                'job' => $class . '@handle',
-                'data' => $request->getContent()
-            ]);
-        }
-
-        return $request->getContent();
+        return json_encode([
+            'job' => $class . '@handle',
+            'data' => $request->getContent()
+        ]);
     }
     
     /**
