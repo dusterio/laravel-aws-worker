@@ -25,7 +25,7 @@ You remember how Laravel documentation advised you to invoke the task scheduler?
 * * * * * php /path/to/artisan schedule:run >> /dev/null 2>&1
 ```
 
-AWS doesn't allow you to run *IX commands or add cron tasks directly. Instead, you have to make regular HTTP (POST, to be precise) requests to your worker endpoint.
+AWS doesn't allow you to run *IX commands or to add cron tasks directly. Instead, you have to make regular HTTP (POST, to be precise) requests to your worker endpoint.
 
 Add cron.yaml to the root folder of your application (this can be a part of your repo or you could add this file right before deploying to EB - the important thing is that this file is present at the time of deployment):
 
@@ -37,10 +37,10 @@ cron:
    schedule: "* * * * *"
 ```
 
-From now on, AWS will do POST /worker/schedule to your endpoint every minute - kind of the same effect we achieved when editing a UNIX cron file. The important difference here is that worker environment still has to run a web process in order to run scheduled tasks.
+From now on, AWS will do POST /worker/schedule to your endpoint every minute - kind of the same effect we achieved when editing a UNIX cron file. The important difference here is that the worker environment still has to run a web process in order to execute scheduled tasks.
 To protect web process from unauthorized calls, 'production' environment won't have special routes. Once again, your worker application **shouldn't have environment set to production** (use 'worker' or anything else).
 
-Your scheduled tasks should be defined in ```App\Console\Kernel::class``` - just where they normally are in Laravel, eg.:
+Your scheduled tasks should be defined in ```App\Console\Kernel::class``` - just where they normally live in Laravel, eg.:
 
 ```php
 protected function schedule(Schedule $schedule)
@@ -52,10 +52,13 @@ protected function schedule(Schedule $schedule)
 
 ## Queued jobs: SQS
 
-Normally Laravel has to poll SQS for new messages, but in case of AWS Elastic Beanstalk messages will come to us – inside of POST requests from AWS daemon. 
+Normally Laravel has to poll SQS for new messages, but in case of AWS Elastic Beanstalk messages will come to us – inside of POST requests from the AWS daemon. 
 
 Therefore, we will create jobs manually based on SQS payload that arrived, and pass that job to the framework's default worker. From this point, the job will be processed the way it's normally processed in Laravel. If it's processed successfully,
 our controller will return a 200 HTTP status and AWS daemon will delete the job from the queue. Again, we don't need to poll for jobs and we don't need to delete jobs - that's done by AWS in this case.
+
+If you dispatch jobs from another instance of Laravel or if you are following Laravel's payload format ```{"job":"","data":""}``` you should be okay to go. If you want to receive custom format JSON messages, you may want to install 
+(Laravel plain SQS)[https://github.com/dusterio/laravel-plain-sqs] package as well.
 
 ## Dependencies
 
@@ -103,9 +106,15 @@ $ php artisan route:list
 +--------+----------+-----------------+------+----------------------------------------------------------+------------+
 ```
 
+So that's it - if you (or AWS) hits ```/worker/queue```, Laravel will process one queue item (supplied in the POST). And if you hit ```/worker/schedule```, we will run the scheduler (it's the same as to run ```php artisan schedule:run``` in shell).
+
 ### Usage in Lumen 5
 
 ```php
 // Add in your bootstrap/app.php
 $app->register(Dusterio\AwsWorker\Integrations\LumenServiceProvider::class);
 ```
+
+## Implications
+
+Note that AWS cron doesn't promise 100% time accuracy. Since cron tasks share the same queue with other jobs, your scheduled tasks may be processed later than expected. 
