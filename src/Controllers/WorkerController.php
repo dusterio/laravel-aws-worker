@@ -2,7 +2,9 @@
 
 namespace Dusterio\AwsWorker\Controllers;
 
+use Dusterio\AwsWorker\Exceptions\MalformedRequestException;
 use Dusterio\AwsWorker\Jobs\AwsJob;
+use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
 use Illuminate\Queue\Jobs\SqsJob;
 use Illuminate\Queue\Worker;
@@ -11,23 +13,28 @@ use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Console\Scheduling\Schedule;
 use Aws\Sqs\SqsClient;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Response;
 
 class WorkerController extends LaravelController
 {
     /**
-     * @param Request $request
+     * @var array
+     */
+    protected $awsHeaders = [
+        //'X-Aws-Sqsd-Queue', 'X-Aws-Sqsd-Msgid', 'X-Aws-Sqsd-Receive-Count'
+    ];
+
+    /**
+     * This method is nearly identical to ScheduleRunCommand shipped with Laravel, but since we are not interested
+     * in console output we couldn't reuse it
+     *
+     * @param Container $laravel
+     * @param Kernel $kernel
+     * @param Schedule $schedule
      * @return array
      */
-    public function schedule(Request $request)
+    public function schedule(Container $laravel, Kernel $kernel, Schedule $schedule)
     {
-        $laravel = App::getInstance();
-
-        // Istantiating the Console kernel causes schedule() method to load all console tasks
-        App::make(Kernel::class);
-
-        // The fresh instance of schedule now contains console tasks
-        $schedule = App::make(Schedule::class);
-
         $events = $schedule->dueEvents($laravel);
         $eventsRan = 0;
         $messages = [];
@@ -48,39 +55,100 @@ class WorkerController extends LaravelController
             $messages[] = 'No scheduled commands are ready to run.';
         }
 
-        return [
-            'code' => 200,
-            'message' => $messages
-        ];
+        return $this->response($messages);
     }
 
     /**
      * @param Request $request
      * @param Worker $worker
+     * @param Container $laravel
      * @return array
      */
-    public function queue(Request $request, Worker $worker)
+    public function queue(Request $request, Worker $worker, Container $laravel)
     {
-        $connectionName = 'sqs';
-        $laravel = App::getInstance();
-        $config = array_merge([
-            'version' => 'latest',
-            'http' => [
-                'timeout' => 60,
-                'connect_timeout' => 60
+        $this->validateHeaders($request);
+        $body = $this->validateBody($request, $laravel);
+
+        $job = new AwsJob($laravel, $request->header('X-Aws-Sqsd-Queue'), [
+            'Body' => $body,
+            'MessageId' => $request->header('X-Aws-Sqsd-Msgid'),
+            'ReceiptHandle' => false,
+            'Attributes' => [
+                'ApproximateReceiveCount' => $request->header('X-Aws-Sqsd-Receive-Count')
             ]
-        ], $laravel['config']["queue.connections.sqs"]);
+        ]);
 
-        $client = new SqsClient($config, $config['queue'], Arr::get($config, 'prefix', ''));
-        $job = new AwsJob($laravel, $client, $connectionName, ['Body' => '', 'ReceiptHandle' => 'ASASAS']);
+        try {
+            $worker->process(
+                $request->header('X-Aws-Sqsd-Queue'), $job, 0, 0
+            );
+        } catch (\Exception $e) {
+            return $this->response([
+                'Couldn\'t process ' . $job->getJobId()
+            ], 500);
+        }
 
-        $worker->process(
-            $connectionName, $job, 0, 0
-        );
+        return $this->response([
+            'Processed ' . $job->getJobId()
+        ]);
+    }
 
-        return [
-            'code' => 200,
-            'message' => 'Yo'
-        ];
+    /**
+     * @param Request $request
+     * @throws MalformedRequestException
+     */
+    private function validateHeaders(Request $request)
+    {
+        foreach ($this->awsHeaders as $header) {
+            if (! $request->hasHeader($header)) {
+                throw new MalformedRequestException('Missing AWS header: ' . $header);
+            }
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @param Container $laravel
+     * @return string
+     * @throws MalformedRequestException
+     */
+    private function validateBody(Request $request, Container $laravel)
+    {
+        if (empty($request->getContent())) {
+            throw new MalformedRequestException('Empty request body');
+        }
+
+        $job = json_decode($request->getContent(), true);
+        if ($job === null) throw new MalformedRequestException('Unable to decode request JSON');
+
+        // If the format is not the standard Laravel format, try to mimic it
+        if (! isset($job['job'])) {
+            $queueId = explode('/', $request->header('X-Aws-Sqsd-Queue'));
+            $queueId = array_pop($queueId);
+
+            $class = (array_key_exists($queueId, $laravel['config']->get('sqs-plain.handlers')))
+                ? $laravel['config']->get('sqs-plain.handlers')[$queueId]
+                : $laravel['config']->get('sqs-plain.default-handler');
+            
+            return json_encode([
+                'job' => $class . '@handle',
+                'data' => $request->getContent()
+            ]);
+        }
+
+        return $request->getContent();
+    }
+    
+    /**
+     * @param array $messages
+     * @param int $code
+     * @return Response
+     */
+    private function response($messages = [], $code = 200)
+    {
+        return new Response(json_encode([
+            'message' => $messages,
+            'code' => $code
+        ]), $code);
     }
 }
