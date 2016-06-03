@@ -6,13 +6,9 @@ use Dusterio\AwsWorker\Exceptions\MalformedRequestException;
 use Dusterio\AwsWorker\Jobs\AwsJob;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
-use Illuminate\Queue\Jobs\SqsJob;
 use Illuminate\Queue\Worker;
-use Illuminate\Support\Facades\App;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Console\Scheduling\Schedule;
-use Aws\Sqs\SqsClient;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Response;
 
 class WorkerController extends LaravelController
@@ -21,7 +17,7 @@ class WorkerController extends LaravelController
      * @var array
      */
     protected $awsHeaders = [
-        //'X-Aws-Sqsd-Queue', 'X-Aws-Sqsd-Msgid', 'X-Aws-Sqsd-Receive-Count'
+        'X-Aws-Sqsd-Queue', 'X-Aws-Sqsd-Msgid', 'X-Aws-Sqsd-Receive-Count'
     ];
 
     /**
@@ -129,7 +125,7 @@ class WorkerController extends LaravelController
             $class = (array_key_exists($queueId, $laravel['config']->get('sqs-plain.handlers')))
                 ? $laravel['config']->get('sqs-plain.handlers')[$queueId]
                 : $laravel['config']->get('sqs-plain.default-handler');
-            
+
             return json_encode([
                 'job' => $class . '@handle',
                 'data' => $request->getContent()
