@@ -118,3 +118,7 @@ $app->register(Dusterio\AwsWorker\Integrations\LumenServiceProvider::class);
 ## Implications
 
 Note that AWS cron doesn't promise 100% time accuracy. Since cron tasks share the same queue with other jobs, your scheduled tasks may be processed later than expected. 
+
+## Post scriptum
+
+I wrote a [blog post](https://blog.menara.com.au/2016/06/running-laravel-in-amazon-elastic-beanstalk/) explaining how this actually works.
