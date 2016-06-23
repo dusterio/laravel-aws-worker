@@ -115,6 +115,10 @@ So that's it - if you (or AWS) hits ```/worker/queue```, Laravel will process on
 $app->register(Dusterio\AwsWorker\Integrations\LumenServiceProvider::class);
 ```
 
+## ToDo
+
+1. Add support for AWS dead letter queue (retry jobs from that queue?)
+
 ## Implications
 
 Note that AWS cron doesn't promise 100% time accuracy. Since cron tasks share the same queue with other jobs, your scheduled tasks may be processed later than expected. 
