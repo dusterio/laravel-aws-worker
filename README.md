@@ -115,6 +115,10 @@ So that's it - if you (or AWS) hits ```/worker/queue```, Laravel will process on
 $app->register(Dusterio\AwsWorker\Integrations\LumenServiceProvider::class);
 ```
 
+## Errors and exceptions
+
+If your job fails, we will throw a ```FailedJobException```. If you want to customize error output – just customise your exception handler.
+
 ## Implications
 
 Note that AWS cron doesn't promise 100% time accuracy. Since cron tasks share the same queue with other jobs, your scheduled tasks may be processed later than expected. 

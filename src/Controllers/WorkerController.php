@@ -2,6 +2,7 @@
 
 namespace Dusterio\AwsWorker\Controllers;
 
+use Dusterio\AwsWorker\Exceptions\FailedJobException;
 use Dusterio\AwsWorker\Exceptions\MalformedRequestException;
 use Dusterio\AwsWorker\Jobs\AwsJob;
 use Illuminate\Contracts\Container\Container;
@@ -59,6 +60,7 @@ class WorkerController extends LaravelController
      * @param Worker $worker
      * @param Container $laravel
      * @return array
+     * @throws FailedJobException
      */
     public function queue(Request $request, Worker $worker, Container $laravel)
     {
@@ -79,9 +81,7 @@ class WorkerController extends LaravelController
                 $request->header('X-Aws-Sqsd-Queue'), $job, 0, 0
             );
         } catch (\Exception $e) {
-            return $this->response([
-                'Couldn\'t process ' . $job->getJobId()
-            ], 500);
+            throw new FailedJobException('Worker failed executing the job', 0, $e);
         }
 
         return $this->response([
