@@ -118,6 +118,7 @@ $app->register(Dusterio\AwsWorker\Integrations\LumenServiceProvider::class);
 ## Errors and exceptions
 
 If your job fails, we will throw a ```FailedJobException```. If you want to customize error output – just customise your exception handler.
+Note that your HTTP status code must be different from 200 in order for AWS to realize the job has failed.
 
 ## Implications
 
