@@ -120,6 +120,10 @@ $app->register(Dusterio\AwsWorker\Integrations\LumenServiceProvider::class);
 If your job fails, we will throw a ```FailedJobException```. If you want to customize error output – just customise your exception handler.
 Note that your HTTP status code must be different from 200 in order for AWS to realize the job has failed.
 
+## ToDo
+
+1. Add support for AWS dead letter queue (retry jobs from that queue?)
+
 ## Implications
 
 Note that AWS cron doesn't promise 100% time accuracy. Since cron tasks share the same queue with other jobs, your scheduled tasks may be processed later than expected. 
