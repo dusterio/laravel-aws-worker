@@ -2,6 +2,9 @@
 
 namespace Dusterio\AwsWorker\Integrations;
 
+use Dusterio\AwsWorker\Wrappers\DefaultWorker;
+use Dusterio\AwsWorker\Wrappers\Laravel53Worker;
+use Dusterio\AwsWorker\Wrappers\WorkerInterface;
 use Dusterio\PlainSqs\Sqs\Connector;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Queue;
@@ -14,6 +17,8 @@ use Illuminate\Queue\QueueManager;
  */
 class LaravelServiceProvider extends ServiceProvider
 {
+    use BindsWorker;
+
     /**
      * @return void
      */
@@ -21,6 +26,7 @@ class LaravelServiceProvider extends ServiceProvider
     {
         if ($this->app->environment() == 'production') return;
 
+        $this->bindWorker();
         $this->addRoutes();
     }
 

@@ -5,6 +5,7 @@ namespace Dusterio\AwsWorker\Controllers;
 use Dusterio\AwsWorker\Exceptions\FailedJobException;
 use Dusterio\AwsWorker\Exceptions\MalformedRequestException;
 use Dusterio\AwsWorker\Jobs\AwsJob;
+use Dusterio\AwsWorker\Wrappers\WorkerInterface;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Http\Request;
 use Illuminate\Queue\Worker;
@@ -57,12 +58,12 @@ class WorkerController extends LaravelController
 
     /**
      * @param Request $request
-     * @param Worker $worker
+     * @param WorkerInterface $worker
      * @param Container $laravel
-     * @return array
+     * @return Response
      * @throws FailedJobException
      */
-    public function queue(Request $request, Worker $worker, Container $laravel)
+    public function queue(Request $request, WorkerInterface $worker, Container $laravel)
     {
         $this->validateHeaders($request);
         $body = $this->validateBody($request, $laravel);
@@ -78,7 +79,10 @@ class WorkerController extends LaravelController
 
         try {
             $worker->process(
-                $request->header('X-Aws-Sqsd-Queue'), $job, 0, 0
+                $request->header('X-Aws-Sqsd-Queue'), $job, [
+                    'maxTries' => 0,
+                    'delay' => 0
+                ]
             );
         } catch (\Exception $e) {
             throw new FailedJobException('Worker failed executing the job', 0, $e);

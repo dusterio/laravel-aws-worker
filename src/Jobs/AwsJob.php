@@ -38,7 +38,12 @@ class AwsJob extends Job implements JobContract
      */
     public function fire()
     {
-        $this->resolveAndFire(json_decode($this->getRawBody(), true));
+        if (method_exists($this, 'resolveAndFire')) {
+            $this->resolveAndFire(json_decode($this->getRawBody(), true));
+            return;
+        }
+
+        parent::fire();
     }
 
     /**

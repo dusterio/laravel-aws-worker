@@ -14,6 +14,8 @@ use Illuminate\Queue\QueueManager;
  */
 class LumenServiceProvider extends ServiceProvider
 {
+    use BindsWorker;
+
     /**
      * @return void
      */
@@ -21,6 +23,7 @@ class LumenServiceProvider extends ServiceProvider
     {
         if ($this->app->environment() == 'production') return;
 
+        $this->bindWorker();
         $this->addRoutes();
     }
 
