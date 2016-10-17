@@ -46,6 +46,30 @@ abstract class LaravelController
     }
 
     /**
+     * Get the registered "after" filters.
+     *
+     * @return array
+     *
+     * @deprecated since version 5.1.
+     */
+    public function getAfterFilters()
+    {
+        return [];
+    }
+
+    /**
+     * Get the registered "before" filters.
+     *
+     * @return array
+     *
+     * @deprecated since version 5.1.
+     */
+    public function getBeforeFilters()
+    {
+        return [];
+    }
+
+    /**
      * Get the middleware for a given method.
      *
      * @param  string $method

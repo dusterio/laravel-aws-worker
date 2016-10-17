@@ -38,7 +38,7 @@ class WorkerController extends LaravelController
         $messages = [];
 
         foreach ($events as $event) {
-            if (! $event->filtersPass($laravel)) {
+            if (method_exists($event, 'filtersPass') && (new \ReflectionMethod($event, 'filtersPass'))->isPublic() && ! $event->filtersPass($laravel)) {
                 continue;
             }
 
@@ -65,7 +65,7 @@ class WorkerController extends LaravelController
      */
     public function queue(Request $request, WorkerInterface $worker, Container $laravel)
     {
-        $this->validateHeaders($request);
+        //$this->validateHeaders($request);
         $body = $this->validateBody($request, $laravel);
 
         $job = new AwsJob($laravel, $request->header('X-Aws-Sqsd-Queue'), [
@@ -100,10 +100,24 @@ class WorkerController extends LaravelController
     private function validateHeaders(Request $request)
     {
         foreach ($this->awsHeaders as $header) {
-            if (! $request->hasHeader($header)) {
+            if (! $this->hasHeader($request, $header)) {
                 throw new MalformedRequestException('Missing AWS header: ' . $header);
             }
         }
+    }
+
+    /**
+     * @param Request $request
+     * @param $header
+     * @return bool
+     */
+    private function hasHeader(Request $request, $header)
+    {
+        if (method_exists($request, 'hasHeader')) {
+            return $request->hasHeader($header);
+        }
+
+        return $request->header($header, false);
     }
 
     /**
