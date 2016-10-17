@@ -17,11 +17,6 @@ This package helps you run your Laravel (or Lumen) jobs in AWS worker environmen
 ![Standard Laravel queue flow](https://www.mysenko.com/images/queues-laravel.png)
 ![AWS Elastic Beanstalk flow](https://www.mysenko.com/images/queues-aws_eb.png)
 
-## Requirements
-
-PHP >= 5.5
-Laravel (or Lumen) >= 5.1
-
 ## Scheduled tasks
 
 You remember how Laravel documentation advised you to invoke the task scheduler? Right, by running ```php artisan schedule:run``` on regular basis, and to do that we had to add an entry to our cron file:
@@ -68,7 +63,7 @@ If you dispatch jobs from another instance of Laravel or if you are following La
 ## Dependencies
 
 * PHP >= 5.5
-* Laravel (or Lumen) >= 5.2
+* Laravel (or Lumen) >= 5.1
 
 ## Installation via Composer
 
