@@ -73,7 +73,7 @@ You can set your worker queues either during the environment launch or anytime l
 
 ![AWS Worker queue settings](https://www.mysenko.com/images/worker_settings.jpg)
 
-If you chose to generate queues automatically, you can see their details later in SQS section of the AWS console:
+Don't forget to set the HTTP path to ```/worker/queue``` – this is where AWS will hit our application. If you chose to generate queues automatically, you can see their details later in SQS section of the AWS console:
 
 ![AWS SQS details](https://www.mysenko.com/images/sqs_details.jpg)
 
