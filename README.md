@@ -17,6 +17,11 @@ This package helps you run your Laravel (or Lumen) jobs in AWS worker environmen
 ![Standard Laravel queue flow](https://www.mysenko.com/images/queues-laravel.png)
 ![AWS Elastic Beanstalk flow](https://www.mysenko.com/images/queues-aws_eb.png)
 
+## Dependencies
+
+* PHP >= 5.5
+* Laravel (or Lumen) >= 5.1
+
 ## Scheduled tasks
 
 You remember how Laravel documentation advised you to invoke the task scheduler? Right, by running ```php artisan schedule:run``` on regular basis, and to do that we had to add an entry to our cron file:
@@ -60,10 +65,40 @@ our controller will return a 200 HTTP status and AWS daemon will delete the job 
 If you dispatch jobs from another instance of Laravel or if you are following Laravel's payload format ```{"job":"","data":""}``` you should be okay to go. If you want to receive custom format JSON messages, you may want to install 
 [Laravel plain SQS](https://github.com/dusterio/laravel-plain-sqs) package as well.
 
-## Dependencies
+## Configuring the queue
 
-* PHP >= 5.5
-* Laravel (or Lumen) >= 5.1
+Every time you create a worker environment in AWS, you are forced to choose two SQS queues – either automatically generated ones or some of your existing queues. One of the queues will be for the jobs themselves, another one is for failed jobs – AWS calls this queue a dead letter queue.
+
+You can set your worker queues either during the environment launch or anytime later in the settings:
+
+![AWS Worker queue settings](https://www.mysenko.com/images/worker_settings.jpg)
+
+If you chose to generate queues automatically, you can see their details later in SQS section of the AWS console:
+
+![AWS SQS details](https://www.mysenko.com/images/sqs_details.jpg)
+
+You have to tell Laravel about this queue. First set your queue driver to SQS in ```.env``` file:
+
+```
+QUEUE_DRIVER=sqs
+```
+
+Then go to ```config/queue.php``` and copy/paste details from AWS console:
+
+```php
+        ...
+        'sqs' => [
+            'driver' => 'sqs',
+            'key' => 'your-public-key',
+            'secret' => 'your-secret-key',
+            'prefix' => 'https://sqs.us-east-1.amazonaws.com/your-account-id',
+            'queue' => 'your-queue-name',
+            'region' => 'us-east-1',
+        ],
+        ...
+```
+
+To generate key and secret go to Identity and Access Management in the AWS console. It's better to create a separate user that ONLY has access to SQS.
 
 ## Installation via Composer
 
