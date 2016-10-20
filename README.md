@@ -141,6 +141,8 @@ $ php artisan route:list
 +--------+----------+-----------------+------+----------------------------------------------------------+------------+
 ```
 
+Note that if your ```APP_ENV``` is set to 'production', routes won't be registered. This is done on purpose – to protect your public web environment from users hitting these routes directly. Set your worker ```APP_ENV``` to something like 'production-worker' or anything else to avoid this.
+
 So that's it - if you (or AWS) hits ```/worker/queue```, Laravel will process one queue item (supplied in the POST). And if you hit ```/worker/schedule```, we will run the scheduler (it's the same as to run ```php artisan schedule:run``` in shell).
 
 ### Usage in Lumen 5
