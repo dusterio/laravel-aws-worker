@@ -141,7 +141,10 @@ $ php artisan route:list
 +--------+----------+-----------------+------+----------------------------------------------------------+------------+
 ```
 
-Note that if your ```APP_ENV``` is set to 'production', routes won't be registered. This is done on purpose – to protect your public web environment from users hitting these routes directly. Set your worker ```APP_ENV``` to something like 'production-worker' or anything else to avoid this.
+Environment variable ```REGISTER_WORKER_ROUTES``` is used to trigger binding of the two routes above. If you run the same application in both web and worker environments,
+don't forget to set ```REGISTER_WORKER_ROUTES``` to ```false``` in your web environment. You don't want your regular users to be able to invoke scheduler or queue worker.
+
+This variable is set to ```true``` by default at this moment.
 
 So that's it - if you (or AWS) hits ```/worker/queue```, Laravel will process one queue item (supplied in the POST). And if you hit ```/worker/schedule```, we will run the scheduler (it's the same as to run ```php artisan schedule:run``` in shell).
 
