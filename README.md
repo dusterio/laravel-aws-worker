@@ -43,7 +43,6 @@ cron:
 ```
 
 From now on, AWS will do POST /worker/schedule to your endpoint every minute - kind of the same effect we achieved when editing a UNIX cron file. The important difference here is that the worker environment still has to run a web process in order to execute scheduled tasks.
-To protect web process from unauthorized calls, 'production' environment won't have special routes. Once again, your worker application **shouldn't have environment set to production** (use 'worker' or anything else).
 
 Your scheduled tasks should be defined in ```App\Console\Kernel::class``` - just where they normally live in Laravel, eg.:
 
@@ -156,6 +155,8 @@ $app->register(Dusterio\AwsWorker\Integrations\LumenServiceProvider::class);
 ```
 
 ## Errors and exceptions
+
+Please make sure that two special routes are not mounted behind a CSRF middleware. Our POSTs are not real web forms and CSRF is not necessary here. If you have a global CSRF middleware, add these routes to exceptions, or otherwise apply CSRF to specific routes or route groups.
 
 If your job fails, we will throw a ```FailedJobException```. If you want to customize error output – just customise your exception handler.
 Note that your HTTP status code must be different from 200 in order for AWS to realize the job has failed.
