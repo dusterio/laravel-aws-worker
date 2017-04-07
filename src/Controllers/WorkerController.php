@@ -7,11 +7,14 @@ use Dusterio\AwsWorker\Exceptions\MalformedRequestException;
 use Dusterio\AwsWorker\Jobs\AwsJob;
 use Dusterio\AwsWorker\Wrappers\WorkerInterface;
 use Illuminate\Contracts\Container\Container;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Queue\Worker;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Response;
+use Symfony\Component\Debug\Exception\FatalThrowableError;
+use Throwable;
 
 class WorkerController extends LaravelController
 {
@@ -60,10 +63,11 @@ class WorkerController extends LaravelController
      * @param Request $request
      * @param WorkerInterface $worker
      * @param Container $laravel
+     * @param ExceptionHandler $exceptions
      * @return Response
      * @throws FailedJobException
      */
-    public function queue(Request $request, WorkerInterface $worker, Container $laravel)
+    public function queue(Request $request, WorkerInterface $worker, Container $laravel, ExceptionHandler $exceptions)
     {
         //$this->validateHeaders($request);
         $body = $this->validateBody($request, $laravel);
@@ -85,7 +89,9 @@ class WorkerController extends LaravelController
                 ]
             );
         } catch (\Exception $e) {
-            throw new FailedJobException('Worker failed executing the job', 0, $e);
+            $exceptions->report($e);
+        } catch (Throwable $e) {
+            $exceptions->report(new FatalThrowableError($e));
         }
 
         return $this->response([
