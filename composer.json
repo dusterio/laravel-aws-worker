@@ -28,5 +28,12 @@
         "psr-4": {
             "Dusterio\\AwsWorker\\": "src/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Dusterio\\AwsWorker\\Integrations\\LaravelServiceProvider"
+            ]
+        }
     }
 }
