@@ -2,7 +2,6 @@
 
 namespace Dusterio\AwsWorker\Controllers;
 
-use Dusterio\AwsWorker\Exceptions\FailedJobException;
 use Dusterio\AwsWorker\Exceptions\MalformedRequestException;
 use Dusterio\AwsWorker\Jobs\AwsJob;
 use Dusterio\AwsWorker\Wrappers\WorkerInterface;
@@ -13,8 +12,6 @@ use Illuminate\Queue\Worker;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Response;
-use Symfony\Component\Debug\Exception\FatalThrowableError;
-use Throwable;
 
 class WorkerController extends LaravelController
 {
@@ -65,7 +62,6 @@ class WorkerController extends LaravelController
      * @param Container $laravel
      * @param ExceptionHandler $exceptions
      * @return Response
-     * @throws FailedJobException
      */
     public function queue(Request $request, WorkerInterface $worker, Container $laravel, ExceptionHandler $exceptions)
     {
@@ -81,18 +77,12 @@ class WorkerController extends LaravelController
             ]
         ]);
 
-        try {
-            $worker->process(
-                $request->header('X-Aws-Sqsd-Queue'), $job, [
-                    'maxTries' => 0,
-                    'delay' => 0
-                ]
-            );
-        } catch (\Exception $e) {
-            $exceptions->report($e);
-        } catch (Throwable $e) {
-            $exceptions->report(new FatalThrowableError($e));
-        }
+        $worker->process(
+            $request->header('X-Aws-Sqsd-Queue'), $job, [
+                'maxTries' => 0,
+                'delay' => 0
+            ]
+        );
 
         return $this->response([
             'Processed ' . $job->getJobId()
