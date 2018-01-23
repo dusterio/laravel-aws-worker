@@ -24,16 +24,17 @@ class LumenServiceProvider extends ServiceProvider
         if (function_exists('env') && ! env('REGISTER_WORKER_ROUTES', true)) return;
 
         $this->bindWorker();
-        $this->addRoutes();
+        $this->addRoutes(preg_match('/5\.5\..*/', $this->app->version()) ? $this->app->router : $this->app);
     }
 
     /**
+     * @param mixed $router
      * @return void
      */
-    protected function addRoutes()
+    protected function addRoutes($router)
     {
-        $this->app->post('/worker/schedule', 'Dusterio\AwsWorker\Controllers\WorkerController@schedule');
-        $this->app->post('/worker/queue', 'Dusterio\AwsWorker\Controllers\WorkerController@queue');
+        $router->post('/worker/schedule', 'Dusterio\AwsWorker\Controllers\WorkerController@schedule');
+        $router->post('/worker/queue', 'Dusterio\AwsWorker\Controllers\WorkerController@queue');
     }
 
     /**
