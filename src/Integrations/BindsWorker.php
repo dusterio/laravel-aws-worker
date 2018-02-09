@@ -16,7 +16,7 @@ trait BindsWorker
      * @var array
      */
     protected $workerImplementations = [
-        '5\.[345].*' => Laravel53Worker::class
+        '5\.[3456].*' => Laravel53Worker::class
     ];
 
     /**
