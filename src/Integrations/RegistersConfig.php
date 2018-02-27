@@ -15,7 +15,7 @@ trait RegistersConfig
     protected function registerConfig()
     {
         $this->publishes([
-            __DIR__ . '/../assets/config/aws-worker.php' => config_path('aws-worker.php'),
+            __DIR__ . '/../../assets/config/aws-worker.php' => config_path('aws-worker.php'),
                 ], 'aws-worker');
     }
 

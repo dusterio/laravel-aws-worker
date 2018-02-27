@@ -14,5 +14,5 @@ return [
       |
       | Defines whether to register worker routes or not.
      */
-    'register_worker_routes' => function_exists('env') && !env('REGISTER_WORKER_ROUTES', true)
+    'register_worker_routes' => function_exists('env') && !!env('REGISTER_WORKER_ROUTES', true)
 ];
