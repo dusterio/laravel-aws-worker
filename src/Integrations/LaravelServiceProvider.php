@@ -17,14 +17,15 @@ use Illuminate\Queue\QueueManager;
  */
 class LaravelServiceProvider extends ServiceProvider
 {
-    use BindsWorker;
+    use BindsWorker,
+        RegistersConfig;
 
     /**
      * @return void
      */
     public function register()
     {
-        if (function_exists('env') && ! env('REGISTER_WORKER_ROUTES', true)) return;
+        if (!config('aws-worker.register_worker_routes')) return;
 
         $this->bindWorker();
         $this->addRoutes();
@@ -44,6 +45,10 @@ class LaravelServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if ($this->app->runningInConsole()) {
+            $this->registerConfig();
+        }
+        
         $this->app->singleton(QueueManager::class, function() {
             return new QueueManager($this->app);
         });
