@@ -24,7 +24,7 @@ class LumenServiceProvider extends ServiceProvider
         if (function_exists('env') && ! env('REGISTER_WORKER_ROUTES', true)) return;
 
         $this->bindWorker();
-        $this->addRoutes(preg_match('/5\.5\..*/', $this->app->version()) ? $this->app->router : $this->app);
+        $this->addRoutes(isset( $this->app->router ) ? $this->app->router : $this->app );
     }
 
     /**
