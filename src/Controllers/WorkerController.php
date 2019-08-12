@@ -12,6 +12,7 @@ use Illuminate\Queue\Worker;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\URL;
 
 class WorkerController extends LaravelController
 {
@@ -33,6 +34,8 @@ class WorkerController extends LaravelController
      */
     public function schedule(Container $laravel, Kernel $kernel, Schedule $schedule)
     {
+        URL::forceRootUrl(config('app.url'));
+        
         $events = $schedule->dueEvents($laravel);
         $eventsRan = 0;
         $messages = [];
@@ -65,6 +68,8 @@ class WorkerController extends LaravelController
      */
     public function queue(Request $request, WorkerInterface $worker, Container $laravel, ExceptionHandler $exceptions)
     {
+        URL::forceRootUrl(config('app.url'));
+        
         //$this->validateHeaders($request);
         $body = $this->validateBody($request, $laravel);
 
