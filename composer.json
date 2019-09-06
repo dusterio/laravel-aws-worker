@@ -14,11 +14,11 @@
     ],
     "require": {
         "php": ">=5.5.0",
-        "illuminate/support": "5.*",
-	    "illuminate/queue": "5.*",
-	    "illuminate/bus": "5.*",
+        "illuminate/support": "6.*",
+	    "illuminate/queue": "6.*",
+	    "illuminate/bus": "6.*",
 	    "aws/aws-sdk-php": "~3.0",
-        "illuminate/http": "5.*"
+        "illuminate/http": "6.*"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*",
