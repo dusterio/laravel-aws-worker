@@ -5,6 +5,7 @@ namespace Dusterio\AwsWorker\Integrations;
 use Dusterio\AwsWorker\Wrappers\WorkerInterface;
 use Dusterio\AwsWorker\Wrappers\DefaultWorker;
 use Dusterio\AwsWorker\Wrappers\Laravel53Worker;
+use Dusterio\AwsWorker\Wrappers\Laravel6Worker;
 
 /**
  * Class BindsWorker
@@ -16,7 +17,8 @@ trait BindsWorker
      * @var array
      */
     protected $workerImplementations = [
-        '5\.[345678]\.\d+' => Laravel53Worker::class
+        '5\.[345678]\.\d+' => Laravel53Worker::class,
+        '6\.[0]\.\d+' => Laravel6Worker::class
     ];
 
     /**
