@@ -25,7 +25,7 @@ class WorkerController extends LaravelController
     /**
      * @var string
      */
-    const LARAVEL_SCHEDULE_COMMAND = 'command';
+    const LARAVEL_SCHEDULE_COMMAND = 'schedule';
 
     /**
      * This method is nearly identical to ScheduleRunCommand shipped with Laravel, but since we are not interested
