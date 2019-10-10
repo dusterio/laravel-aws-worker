@@ -23,16 +23,25 @@ class WorkerController extends LaravelController
     ];
 
     /**
+     * @var string
+     */
+    const LARAVEL_SCHEDULE_COMMAND = 'command';
+
+    /**
      * This method is nearly identical to ScheduleRunCommand shipped with Laravel, but since we are not interested
      * in console output we couldn't reuse it
      *
      * @param Container $laravel
      * @param Kernel $kernel
      * @param Schedule $schedule
+     * @param Request $request
      * @return array
      */
-    public function schedule(Container $laravel, Kernel $kernel, Schedule $schedule)
+    public function schedule(Container $laravel, Kernel $kernel, Schedule $schedule, Request $request)
     {
+        $command = $request->headers->get('X-Aws-Sqsd-Taskname', $this::LARAVEL_SCHEDULE_COMMAND);
+        if ($command != $this::LARAVEL_SCHEDULE_COMMAND) return $this->runSpecificCommand($kernel, $request->headers->get('X-Aws-Sqsd-Taskname'));
+
         $events = $schedule->dueEvents($laravel);
         $eventsRan = 0;
         $messages = [];
@@ -54,6 +63,18 @@ class WorkerController extends LaravelController
         }
 
         return $this->response($messages);
+    }
+
+    /**
+     * @param Kernel $kernel
+     * @param $command
+     * @return Response
+     */
+    protected function runSpecificCommand(Kernel $kernel, $command)
+    {
+        $exitCode = $kernel->call($command);
+
+        return $this->response($exitCode);
     }
 
     /**

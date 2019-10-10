@@ -22,8 +22,9 @@ This package helps you run your Laravel (or Lumen) jobs in AWS worker environmen
 * PHP >= 5.5
 * Laravel (or Lumen) >= 5.1
 
-## Scheduled tasks
+## Scheduled tasks - option 1
 
+Option one is to use Kernel.php as the schedule and run Laravel schedule runner every minute.
 You remember how Laravel documentation advised you to invoke the task scheduler? Right, by running ```php artisan schedule:run``` on regular basis, and to do that we had to add an entry to our cron file:
 
 ```bash
@@ -43,6 +44,7 @@ cron:
 ```
 
 From now on, AWS will do POST /worker/schedule to your endpoint every minute - kind of the same effect we achieved when editing a UNIX cron file. The important difference here is that the worker environment still has to run a web process in order to execute scheduled tasks.
+Behind the scenes it will do something very similar to a built-in `schedule:run` command.
 
 Your scheduled tasks should be defined in ```App\Console\Kernel::class``` - just where they normally live in Laravel, eg.:
 
@@ -53,6 +55,28 @@ protected function schedule(Schedule $schedule)
               ->everyMinute();
 }
 ```
+
+## Scheduled tasks - option 2
+
+Option two is to use AWS schedule defined in the cron.yml:
+
+```yaml
+version: 1
+cron:
+ - name: "run:command"
+   url: "/worker/schedule"
+   schedule: "0 * * * *"
+
+ - name: "do:something"
+   url: "/worker/schedule"
+   schedule: "*/5 * * * *"
+```
+
+Note that AWS will use UTC timezone for cron expressions. With the above example,
+AWS will hit /worker/schedule endpoint every hour with `run:command` artisan command and every
+5 minutes with `do:something` command. Command parameters aren't supported at this stage.
+
+Pick whichever option is better for you!
 
 ## Queued jobs: SQS
 
