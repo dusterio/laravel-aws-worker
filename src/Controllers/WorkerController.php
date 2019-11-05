@@ -66,13 +66,44 @@ class WorkerController extends LaravelController
     }
 
     /**
+     * @param string $command
+     * @return array
+     */
+    protected function parseCommand($command)
+    {
+        $elements = explode(' ', $command);
+        $name = $elements[0];
+        if (count($elements) == 1) return [$name, []];
+
+        array_shift($elements);
+        $arguments = [];
+
+        array_map(function($parameter) use (&$arguments) {
+            if (strstr($parameter, '=')) {
+                $parts = explode('=', $parameter);
+                $arguments[$parts[0]] = $parts[1];
+                return;
+            }
+
+            $arguments[$parameter] = true;
+        }, $elements);
+
+        return [
+            $name,
+            $arguments
+        ];
+    }
+
+    /**
      * @param Kernel $kernel
      * @param $command
      * @return Response
      */
     protected function runSpecificCommand(Kernel $kernel, $command)
     {
-        $exitCode = $kernel->call($command);
+        list ($name, $arguments) = $this->parseCommand($command);
+
+        $exitCode = $kernel->call($name, $arguments);
 
         return $this->response($exitCode);
     }

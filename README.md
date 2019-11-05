@@ -67,7 +67,7 @@ cron:
    url: "/worker/schedule"
    schedule: "0 * * * *"
 
- - name: "do:something"
+ - name: "do:something --param=1 -v"
    url: "/worker/schedule"
    schedule: "*/5 * * * *"
 ```
