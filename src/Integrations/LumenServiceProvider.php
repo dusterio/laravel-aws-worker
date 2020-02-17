@@ -7,6 +7,8 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\QueueManager;
+use Illuminate\Queue\Worker;
+use Illuminate\Contracts\Debug\ExceptionHandler;
 
 /**
  * Class CustomQueueServiceProvider
