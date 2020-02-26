@@ -189,6 +189,10 @@ Note that your HTTP status code must be different from 200 in order for AWS to r
 
 1. Add support for AWS dead letter queue (retry jobs from that queue?)
 
+## Video tutorials
+
+I've just started a educational YouTube channel that will cover top IT trends in software development and DevOps: [config.sys](https://www.youtube.com/channel/UCIvUJ1iVRjJP_xL0CD7cMpg)
+
 ## Implications
 
 Note that AWS cron doesn't promise 100% time accuracy. Since cron tasks share the same queue with other jobs, your scheduled tasks may be processed later than expected. 
