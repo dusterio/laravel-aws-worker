@@ -23,16 +23,25 @@ class WorkerController extends LaravelController
     ];
 
     /**
+     * @var string
+     */
+    const LARAVEL_SCHEDULE_COMMAND = 'schedule';
+
+    /**
      * This method is nearly identical to ScheduleRunCommand shipped with Laravel, but since we are not interested
      * in console output we couldn't reuse it
      *
      * @param Container $laravel
      * @param Kernel $kernel
      * @param Schedule $schedule
+     * @param Request $request
      * @return array
      */
-    public function schedule(Container $laravel, Kernel $kernel, Schedule $schedule)
+    public function schedule(Container $laravel, Kernel $kernel, Schedule $schedule, Request $request)
     {
+        $command = $request->headers->get('X-Aws-Sqsd-Taskname', $this::LARAVEL_SCHEDULE_COMMAND);
+        if ($command != $this::LARAVEL_SCHEDULE_COMMAND) return $this->runSpecificCommand($kernel, $request->headers->get('X-Aws-Sqsd-Taskname'));
+
         $events = $schedule->dueEvents($laravel);
         $eventsRan = 0;
         $messages = [];
@@ -54,6 +63,49 @@ class WorkerController extends LaravelController
         }
 
         return $this->response($messages);
+    }
+
+    /**
+     * @param string $command
+     * @return array
+     */
+    protected function parseCommand($command)
+    {
+        $elements = explode(' ', $command);
+        $name = $elements[0];
+        if (count($elements) == 1) return [$name, []];
+
+        array_shift($elements);
+        $arguments = [];
+
+        array_map(function($parameter) use (&$arguments) {
+            if (strstr($parameter, '=')) {
+                $parts = explode('=', $parameter);
+                $arguments[$parts[0]] = $parts[1];
+                return;
+            }
+
+            $arguments[$parameter] = true;
+        }, $elements);
+
+        return [
+            $name,
+            $arguments
+        ];
+    }
+
+    /**
+     * @param Kernel $kernel
+     * @param $command
+     * @return Response
+     */
+    protected function runSpecificCommand(Kernel $kernel, $command)
+    {
+        list ($name, $arguments) = $this->parseCommand($command);
+
+        $exitCode = $kernel->call($name, $arguments);
+
+        return $this->response($exitCode);
     }
 
     /**
