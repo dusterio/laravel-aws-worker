@@ -6,6 +6,8 @@ use Dusterio\AwsWorker\Wrappers\WorkerInterface;
 use Dusterio\AwsWorker\Wrappers\DefaultWorker;
 use Dusterio\AwsWorker\Wrappers\Laravel53Worker;
 use Dusterio\AwsWorker\Wrappers\Laravel6Worker;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Queue\Worker;
 
 /**
  * Class BindsWorker
@@ -18,7 +20,7 @@ trait BindsWorker
      */
     protected $workerImplementations = [
         '5\.[345678]\.\d+' => Laravel53Worker::class,
-        '6\.\d+\.\d+' => Laravel6Worker::class
+        '[67]\.\d+\.\d+' => Laravel6Worker::class
     ];
 
     /**
@@ -39,6 +41,22 @@ trait BindsWorker
      */
     protected function bindWorker()
     {
+        // If Laravel version is 6 or above then the worker bindings change. So we initiate it here
+        if ($this->app->version() >= 6) {
+            $this->app->singleton(Worker::class, function () {
+                $isDownForMaintenance = function () {
+                    return $this->app->isDownForMaintenance();
+                };
+
+                return new Worker(
+                    $this->app['queue'],
+                    $this->app['events'],
+                    $this->app[ExceptionHandler::class],
+                    $isDownForMaintenance
+                );
+            });
+        }
+
         $this->app->bind(WorkerInterface::class, $this->findWorkerClass($this->app->version()));
     }
 }
