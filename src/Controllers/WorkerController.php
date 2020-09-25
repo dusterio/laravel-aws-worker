@@ -129,9 +129,11 @@ class WorkerController extends LaravelController
             ]
         ]);
 
+        $bodyArray = json_decode($body, true);
+
         $worker->process(
             $request->header('X-Aws-Sqsd-Queue'), $job, [
-                'maxTries' => 0,
+                'maxTries' => (isset($bodyArray['maxTries']) && !is_null($bodyArray['maxTries']))? $bodyArray['maxTries'] : 0,
                 'delay' => 0
             ]
         );
