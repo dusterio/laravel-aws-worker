@@ -193,6 +193,8 @@ Note that your HTTP status code must be different from 200 in order for AWS to r
 
 I've just started a educational YouTube channel that will cover top IT trends in software development and DevOps: [config.sys](https://www.youtube.com/channel/UCIvUJ1iVRjJP_xL0CD7cMpg)
 
+Also I'm glad to announce a new cool tool of mine – [GrammarCI](https://www.grammarci.com/), an automated typo/grammar checker for developers, as a part of the CI/CD pipeline.
+
 ## Implications
 
 Note that AWS cron doesn't promise 100% time accuracy. Since cron tasks share the same queue with other jobs, your scheduled tasks may be processed later than expected. 
