@@ -131,7 +131,7 @@ class WorkerController extends LaravelController
 
         $worker->process(
             $request->header('X-Aws-Sqsd-Queue'), $job, [
-                'maxTries' => 0,
+                'maxTries' => $this->tryToExtractAttempts($body),
                 'delay' => 0
             ]
         );
@@ -139,6 +139,20 @@ class WorkerController extends LaravelController
         return $this->response([
             'Processed ' . $job->getJobId()
         ]);
+    }
+
+    /**
+     * @param $input
+     * @return int
+     */
+    private function tryToExtractAttempts($input)
+    {
+        // Try to extract $tries integer value of the listener from the serialized job body
+        if (preg_match('/tries\\\\\\\\\\\\";i:(?<attempts>\d+);/', $input, $matches)) {
+            return intval($matches['attempts']);
+        }
+
+        return 0;
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Dusterio\AwsWorker\Integrations;
 
+use Dusterio\AwsWorker\Wrappers\Laravel7Worker;
 use Dusterio\AwsWorker\Wrappers\WorkerInterface;
 use Dusterio\AwsWorker\Wrappers\DefaultWorker;
 use Dusterio\AwsWorker\Wrappers\Laravel53Worker;
@@ -20,7 +21,8 @@ trait BindsWorker
      */
     protected $workerImplementations = [
         '5\.[345678]\.\d+' => Laravel53Worker::class,
-        '[67]\.\d+\.\d+' => Laravel6Worker::class
+        '[6]\.\d+\.\d+' => Laravel6Worker::class,
+        '[78]\.\d+\.\d+' => Laravel7Worker::class
     ];
 
     /**
