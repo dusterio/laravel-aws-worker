@@ -31,7 +31,7 @@ class Laravel7Worker implements WorkerInterface
      */
     public function process($queue, $job, array $options)
     {
-        $workerOptions = new WorkerOptions('default', $options['delay'], 128, 60, 3, $options['maxTries']);
+        $workerOptions = new WorkerOptions('default', $options['delay'], 128, $options['timeout'], 3, $options['maxTries']);
 
         $this->worker->process(
             $queue, $job, $workerOptions

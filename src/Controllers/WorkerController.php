@@ -130,10 +130,9 @@ class WorkerController extends LaravelController
         ]);
 
         $worker->process(
-            $request->header('X-Aws-Sqsd-Queue'), $job, [
-                'maxTries' => $this->tryToExtractAttempts($body),
+            $request->header('X-Aws-Sqsd-Queue'), $job, array_merge([
                 'delay' => 0
-            ]
+            ],  $this->tryToExtractOptions($body))
         );
 
         return $this->response([
@@ -145,14 +144,23 @@ class WorkerController extends LaravelController
      * @param $input
      * @return int
      */
-    private function tryToExtractAttempts($input)
+    private function tryToExtractOptions($input)
     {
-        // Try to extract $tries integer value of the listener from the serialized job body
+        $parameters = [
+            'maxTries' => 1,
+            'timeout' => 60
+        ];
+
+        // Try to extract listener class options from the serialized job body
         if (preg_match('/tries\\\\\\\\\\\\";i:(?<attempts>\d+);/', $input, $matches)) {
-            return intval($matches['attempts']);
+            $parameters['maxTries'] = intval($matches['attempts']);
         }
 
-        return 0;
+        if (preg_match('/timeout\\\\\\\\\\\\";i:(?<timeout>\d+);/', $input, $matches)) {
+            $parameters['timeout'] = intval($matches['timeout']);
+        }
+
+        return $parameters;
     }
 
     /**
