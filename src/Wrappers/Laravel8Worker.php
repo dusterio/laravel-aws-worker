@@ -7,10 +7,10 @@ use Illuminate\Queue\WorkerOptions;
 use Illuminate\Contracts\Cache\Repository as Cache;
 
 /**
- * Class Laravel6Worker
+ * Class Laravel8Worker
  * @package Dusterio\AwsWorker\Wrappers
  */
-class Laravel7Worker implements WorkerInterface
+class Laravel8Worker implements WorkerInterface
 {
     /**
      * DefaultWorker constructor.

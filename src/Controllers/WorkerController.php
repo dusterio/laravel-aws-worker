@@ -147,7 +147,7 @@ class WorkerController extends LaravelController
     private function tryToExtractOptions($input)
     {
         $parameters = [
-            'maxTries' => 1,
+            'maxTries' => 0,
             'timeout' => 60
         ];
 
