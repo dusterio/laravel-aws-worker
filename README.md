@@ -152,6 +152,12 @@ Or add it to `composer.json` manually:
 ];
 ```
 
+Then publish the package in order to create the config file.
+
+```sh
+php artisan vendor:publish --provider="Dusterio\AwsWorker\Integrations\LaravelServiceProvider"
+```
+
 After adding service provider, you should be able to see two special routes that we added:
 
 ```bash
@@ -176,6 +182,12 @@ So that's it - if you (or AWS) hits ```/worker/queue```, Laravel will process on
 ```php
 // Add in your bootstrap/app.php
 $app->register(Dusterio\AwsWorker\Integrations\LumenServiceProvider::class);
+```
+
+Then publish the package in order to create the config file.
+
+```sh
+php artisan vendor:publish --provider="Dusterio\AwsWorker\Integrations\LumenServiceProvider"
 ```
 
 ## Errors and exceptions
