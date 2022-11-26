@@ -88,6 +88,16 @@ class AwsJob extends Job implements JobContract
     }
 
     /**
+     * Get the UNIX timestamp of the message creation.
+     *
+     * @return int
+     */
+    public function timestamp()
+    {
+        return (int) round($this->job['Attributes']['SentTimestamp'] / 1000);
+    }
+
+    /**
      * Get the job identifier.
      *
      * @return string

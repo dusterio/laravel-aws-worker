@@ -125,7 +125,8 @@ class WorkerController extends LaravelController
             'MessageId' => $request->header('X-Aws-Sqsd-Msgid'),
             'ReceiptHandle' => false,
             'Attributes' => [
-                'ApproximateReceiveCount' => $request->header('X-Aws-Sqsd-Receive-Count')
+                'ApproximateReceiveCount' => $request->header('X-Aws-Sqsd-Receive-Count'),
+                'SentTimestamp' => strtotime($request->header('X-Aws-Sqsd-First-Received-At', ''))
             ]
         ]);
 
