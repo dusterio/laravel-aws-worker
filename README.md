@@ -185,6 +185,34 @@ Please make sure that two special routes are not mounted behind a CSRF middlewar
 If your job fails, we will throw a ```FailedJobException```. If you want to customize error output – just customise your exception handler.
 Note that your HTTP status code must be different from 200 in order for AWS to realize the job has failed.
 
+## Job expiration (retention)
+
+A new nice feature is being able to set a job expiration (retention in AWS terms) in seconds so 
+that low value jobs get skipped completely if there is temporary queue latency due to load.
+
+Let's say we have a spike in queued jobs and some of them don't even make sense anymore
+now that a few minutes passed – we don't want to spend computing resources processing them
+later.
+
+By setting a special property on a job or a listener class:
+```php
+class PurgeCache implements ShouldQueue
+{
+    public static int $retention = 300; // If this job is delayed more than 300 seconds, skip it
+}
+```
+
+We can make sure that we won't run this job later than 300 seconds since it's been queued.
+This is similar to AWS SQS "message retention" setting which can only be set globally for
+the whole queue.
+
+To use this new feature, you have to use provided ```Jobs\CallQueuedHandler``` class that
+extends Laravel's default ```CallQueuedHandler```. A special ```ExpiredJobException``` exception
+will be thrown when expired jobs arrive and then it's up to you what to do with them.
+
+If you just catch these exceptions and therefore stop Laravel from returning code 500
+to AWS daemon, the job will be deleted by AWS automatically.
+
 ## ToDo
 
 1. Add support for AWS dead letter queue (retry jobs from that queue?)
