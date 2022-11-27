@@ -126,7 +126,7 @@ class WorkerController extends LaravelController
             'ReceiptHandle' => false,
             'Attributes' => [
                 'ApproximateReceiveCount' => $request->header('X-Aws-Sqsd-Receive-Count'),
-                'SentTimestamp' => strtotime($request->header('X-Aws-Sqsd-First-Received-At', ''))
+                'SentTimestamp' => $request->headers->has('X-Aws-Sqsd-First-Received-At') ? strtotime($request->header('X-Aws-Sqsd-First-Received-At')) * 1000 : null
             ]
         ]);
 
