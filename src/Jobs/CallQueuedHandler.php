@@ -16,27 +16,23 @@ class CallQueuedHandler extends LaravelHandler {
      */
     protected function dispatchThroughMiddleware(Job $job, $command)
     {
-        if ($this->hasExpired($command, $job->timestamp())) {
-            throw new ExpiredJobException("This job has already expired");
+        if (property_exists($command, 'class') && $this->hasExpired($command->class, $job->timestamp())) {
+            throw new ExpiredJobException("Job {$command->class} has already expired");
         }
 
         return parent::dispatchThroughMiddleware($job, $command);
     }
 
     /**
-     * @param $command
+     * @param $className
      * @param $queuedAt
      * @return bool
      */
-    protected function hasExpired($command, $queuedAt) {
-        if (! property_exists($command, 'class')) {
+    protected function hasExpired($className, $queuedAt) {
+        if (! property_exists($className, 'retention')) {
             return false;
         }
 
-        if (! property_exists($command->class, 'retention')) {
-            return false;
-        }
-
-        return time() > $queuedAt + $command->class::$retention;
+        return time() > $queuedAt + $className::$retention;
     }
 }
