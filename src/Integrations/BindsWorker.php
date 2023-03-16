@@ -44,7 +44,7 @@ trait BindsWorker
     protected function bindWorker()
     {
         // If Laravel version is 6 or above then the worker bindings change. So we initiate it here
-        if ($this->app->version() >= 6) {
+        if ((int) $this->app->version() >= 6) {
             $this->app->singleton(Worker::class, function () {
                 $isDownForMaintenance = function () {
                     return $this->app->isDownForMaintenance();
