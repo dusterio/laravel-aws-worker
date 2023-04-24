@@ -22,7 +22,8 @@ trait BindsWorker
     protected $workerImplementations = [
         '5\.[345678]\.\d+' => Laravel53Worker::class,
         '[67]\.\d+\.\d+' => Laravel6Worker::class,
-        '[89]\.\d+\.\d+' => Laravel8Worker::class
+        '[89]\.\d+\.\d+' => Laravel8Worker::class,
+        '[10]\.\d+\.\d+' => Laravel8Worker::class,
     ];
 
     /**
@@ -35,6 +36,7 @@ trait BindsWorker
             if (preg_match('/' . $regexp . '/', $version)) return $class;
         }
 
+
         return DefaultWorker::class;
     }
 
@@ -44,21 +46,18 @@ trait BindsWorker
     protected function bindWorker()
     {
         // If Laravel version is 6 or above then the worker bindings change. So we initiate it here
-        if ($this->app->version() >= 6) {
-            $this->app->singleton(Worker::class, function () {
-                $isDownForMaintenance = function () {
-                    return $this->app->isDownForMaintenance();
-                };
+        $this->app->singleton(Worker::class, function () {
+            $isDownForMaintenance = function () {
+                return $this->app->isDownForMaintenance();
+            };
 
-                return new Worker(
-                    $this->app['queue'],
-                    $this->app['events'],
-                    $this->app[ExceptionHandler::class],
-                    $isDownForMaintenance
-                );
-            });
-        }
-
+            return new Worker(
+                $this->app['queue'],
+                $this->app['events'],
+                $this->app[ExceptionHandler::class],
+                $isDownForMaintenance
+            );
+        });
         $this->app->bind(WorkerInterface::class, $this->findWorkerClass($this->app->version()));
     }
 }
