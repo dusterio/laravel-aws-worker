@@ -229,4 +229,4 @@ Note that AWS cron doesn't promise 100% time accuracy. Since cron tasks share th
 
 ## Post scriptum
 
-I wrote a [blog post](https://blog.menara.com.au/2016/06/running-laravel-in-amazon-elastic-beanstalk/) explaining how this actually works.
+I wrote a [blog post](https://web.archive.org/web/20210616063916/https://blog.menara.com.au/2016/06/running-laravel-in-amazon-elastic-beanstalk/) explaining how this actually works.
