@@ -43,5 +43,5 @@
                 "Dusterio\\AwsWorker\\Integrations\\LaravelServiceProvider"
             ]
         }
-    },
+    }
 }
