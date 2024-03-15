@@ -40,7 +40,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Dusterio\AwsWorker\Integrations\LaravelServiceProvider"
+                "Dusterio\\AwsWorker\\Integrations\\LaravelServiceProvider"
             ]
         }
     },
