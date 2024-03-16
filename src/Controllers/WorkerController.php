@@ -42,8 +42,6 @@ class WorkerController extends LaravelController
         $command = $request->headers->get('X-Aws-Sqsd-Taskname', $this::LARAVEL_SCHEDULE_COMMAND);
         if ($command != $this::LARAVEL_SCHEDULE_COMMAND) return $this->runSpecificCommand($kernel, $request->headers->get('X-Aws-Sqsd-Taskname'));
 
-        $kernel->bootstrap();
-        
         $events = $schedule->dueEvents($laravel);
         $eventsRan = 0;
         $messages = [];
