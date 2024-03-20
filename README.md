@@ -6,13 +6,15 @@
 [![Latest Unstable Version](https://poser.pugx.org/dusterio/laravel-aws-worker/v/unstable.svg)](https://packagist.org/packages/dusterio/laravel-aws-worker)
 [![License](https://poser.pugx.org/dusterio/laravel-aws-worker/license.svg)](https://packagist.org/packages/dusterio/laravel-plain-sqs)
 
-Run Laravel (or Lumen) tasks and queue listeners inside of AWS Elastic Beanstalk workers
+Run Laravel tasks and queue listeners inside of AWS Elastic Beanstalk workers
+
+> We've dropped future support for Lumen, however you can still use [v0.1.40](https://github.com/dusterio/laravel-aws-worker/releases/tag/v0.1.40) for Lumen.
 
 ## Overview
 
 Laravel documentation recommends to use supervisor for queue workers and *IX cron for scheduled tasks. However, when deploying your application to AWS Elastic Beanstalk, neither option is available.
 
-This package helps you run your Laravel (or Lumen) jobs in AWS worker environments.
+This package helps you run your Laravel jobs in AWS worker environments.
 
 ![Standard Laravel queue flow](https://www.mysenko.com/images/queues-laravel.png)
 ![AWS Elastic Beanstalk flow](https://www.mysenko.com/images/queues-aws_eb.png)
@@ -20,7 +22,7 @@ This package helps you run your Laravel (or Lumen) jobs in AWS worker environmen
 ## Dependencies
 
 * PHP >= 5.5
-* Laravel (or Lumen) >= 5.1
+* Laravel >= 5.1
 
 ## Scheduled tasks - option 1
 
