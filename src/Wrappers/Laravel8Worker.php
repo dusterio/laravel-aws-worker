@@ -13,6 +13,16 @@ use Illuminate\Contracts\Cache\Repository as Cache;
 class Laravel8Worker implements WorkerInterface
 {
     /**
+     * @var Worker
+     */
+    public $worker;
+
+    /**
+     * @var Cache
+     */
+    public $cache;
+
+    /**
      * DefaultWorker constructor.
      * @param Worker $worker
      * @param  \Illuminate\Contracts\Cache\Repository  $cache
