@@ -22,7 +22,7 @@ trait BindsWorker
     protected $workerImplementations = [
         '5\.[345678]\.\d+' => Laravel53Worker::class,
         '[67]\.\d+\.\d+' => Laravel6Worker::class,
-        '([89]|10|11|12)\.\d+\.\d+' => Laravel8Worker::class
+        '([89]|10|11|12|13)\.\d+\.\d+' => Laravel8Worker::class
     ];
 
     /**
